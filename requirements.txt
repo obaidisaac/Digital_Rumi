@@ -1,3 +1,4 @@
 langchain
+langchain-huggingface
 huggingface_hub
 streamlit

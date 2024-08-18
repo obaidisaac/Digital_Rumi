@@ -112,12 +112,15 @@ chain = (
     | StrOutputParser()
 )
 
-
+charity_url = "https://www.savethechildren.org/us/where-we-work/afghanistan"
 # Streamlit commands
 
 st.set_page_config(page_title="Digital Rumi", page_icon=":robot:")
 st.header('Digital Rumi')
-st.text('This app is powered by langchain and huggingface, and made by @obaidisaac@gmail.com')
+st.text('This app is powered by langchain and huggingface, and uses the Zephyr 7B LLM model.')
+st.write("")
+st.write("")
+
 
 def get_subject_for_poem():
     #subject = "mystic, mountains and dreams"
@@ -129,6 +132,7 @@ subject = get_subject_for_poem()
 if subject:
     st.write("You entered: ")
     st.write(subject)
+    st.write("")
     retrieved_docs = retriever.invoke(subject)
     response = chain.invoke(subject)
     st.write(response)
@@ -137,8 +141,16 @@ st.markdown("")
 st.markdown("")
 st.markdown("")
 st.markdown("BEFORE YOU LEAVE..")
-st.markdown("Please DONATE!")
-st.markdown("100% of donations go to Afghan children where Rumi was born in 1207. Contact the page author : obaidisaac@gmail.com")
+st.markdown("")
+st.markdown("Please donate to the children of Afghanistan, where Rumi was born in 1207.")
+st.markdown("[savethechildren.org](%s)" % charity_url) 
+st.markdown("")
+
+
 st.image(image='https://gdb.rferl.org/806d0000-c0a8-0242-a656-08dabbebc4b4_cx0_cy5_cw0_w1597_n_r1_st_s.jpg', 
-         width=500, 
+         width=700, 
          caption='https://www.rferl.org/a/afghanistan-child-labor-humanitiarian-economic-crisis/32415971.html')
+
+st.text("")
+st.text("")
+st.text("App author : obaidisaac@gmail.com")
