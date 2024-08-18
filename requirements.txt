@@ -2,4 +2,5 @@ langchain
 langchain-huggingface
 langchain-community
 huggingface_hub
+chromadb
 streamlit
