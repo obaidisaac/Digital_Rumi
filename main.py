@@ -1,10 +1,9 @@
 
 
-__import__('pysqlite3')
-import sys
-sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
-
-import sqlite3
+#__import__('pysqlite3')
+#import sys
+#sys.modules['sqlite3'] = sys.modules.pop('pysqlite3')
+#import sqlite3
 
 #from langchain.llms import HuggingFaceHub
 #from langchain.document_loaders import TextLoader
@@ -47,7 +46,8 @@ def llm_loader():
                                    "num_beam_groups": 4,
                                    "no_repeat_ngram_size": 3,
                                    "exponential_decay_length_penalty": (8, 0.5)
-                        })
+                    },
+                    pipeline_kwargs={"max_new_tokens": 512})
     return llm
 
 @st.cache_data
