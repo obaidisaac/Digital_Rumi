@@ -9,7 +9,7 @@ import sqlite3
 #from langchain.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 #from langchain.embeddings import HuggingFaceInferenceAPIEmbeddings
-#from langchain.vectorstores import Chroma
+from langchain.vectorstores import Chroma
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.prompts import PromptTemplate
