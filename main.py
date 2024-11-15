@@ -9,7 +9,7 @@ import sqlite3
 #from langchain.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 #from langchain.embeddings import HuggingFaceInferenceAPIEmbeddings
-from langchain.vectorstores import Chroma
+#from langchain.vectorstores import Chroma
 from langchain.schema.output_parser import StrOutputParser
 from langchain.schema.runnable import RunnablePassthrough
 from langchain.prompts import PromptTemplate
@@ -38,16 +38,18 @@ st.write("")
 
 @st.cache_data
 def llm_loader():
-    llm = HuggingFaceEndpoint(repo_id = "HuggingFaceH4/zephyr-7b-alpha",
-                     huggingfacehub_api_token = hf_inference_api_key,
-                     temperature = 0.7, do_sample = True, repetition_penalty = 1.3,
-                     model_kwargs={
-                                   "num_beams": 5,
-                                   "num_beam_groups": 4,
-                                   "no_repeat_ngram_size": 3,
-                                   "exponential_decay_length_penalty": (8, 0.5)
-                    },
-                    pipeline_kwargs={"max_new_tokens": 512})
+    llm = HuggingFaceEndpoint(
+        repo_id = "HuggingFaceH4/zephyr-7b-alpha",
+        #repo_id= "HuggingFaceTB/SmolLM-135M",
+        huggingfacehub_api_token = hf_inference_api_key,
+        temperature = 0.7, do_sample = True, repetition_penalty = 1.3,
+        model_kwargs={
+            "num_beams": 5,
+            "num_beam_groups": 4,
+            "no_repeat_ngram_size": 3,
+            "exponential_decay_length_penalty": (8, 0.5)
+            })
+            #,pipeline_kwargs={"max_new_tokens": 512})
     return llm
 
 @st.cache_data
@@ -68,8 +70,8 @@ def json_serializable(_documentclasstext):
 @st.cache_data
 def text_splitter(fulltext):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=300,
-        chunk_overlap=30,
+        chunk_size=80,
+        chunk_overlap=15,
         length_function=len,
         add_start_index=True,
         )
@@ -87,8 +89,11 @@ def embeddings_hf():
 
 @st.cache_resource
 def vector_db(_texts,_embeddings):
-    db = Chroma.from_texts(json_serializable(_texts), _embeddings)
-    retriever = db.as_retriever(search_type="mmr", k=6, return_source_documents=False) 
+    #db = Chroma.from_texts(json_serializable(_texts), _embeddings)
+    db = Chroma.from_documents(_texts, _embeddings)
+    retriever = db.as_retriever(
+        search_type="mmr", k=10, return_source_documents=True
+        ) 
     # mmr = maximal marginal relevance for similarity + diversity
     return retriever
 
@@ -98,11 +103,9 @@ llm = llm_loader()
 document = text_loader("rumi.txt")
 fulltext = json_serializable(document)
 texts = text_splitter(fulltext)
+print(len(texts))
 embeddings = embeddings_hf()
 retriever = vector_db(texts, embeddings)
-
-
-
 
 
 
@@ -119,22 +122,25 @@ They say there's a door between one heart and another.
 How can there be a door where no wall remains?
 ###
 
-Write a ghazal about {question} based on the following context: {context}
+Write a ghazal about {subject} based on the following context: {context}
 
 """
 
 
 prompt = PromptTemplate.from_template(template=prompt_template)#, input_variables=["question","context"])
 model = llm
-#def format_docs(docs):
-#    return "\n\n".join([d.page_content for d in docs])
-#"context": retriever | format_docs
+
+def format_docs(docs):
+    print(len(docs))
+    return "\n\n".join([d.page_content for d in docs])
+
 chain = (
-    {"context": retriever, "question": RunnablePassthrough()}
+    {"context": retriever | format_docs, "subject": RunnablePassthrough()}
     | prompt
     | model
     | StrOutputParser()
 )
+ 
 
 charity_url = "https://www.savethechildren.org/us/where-we-work/afghanistan"
 
@@ -161,7 +167,11 @@ if subject:# is True and len(subject) <= 50:
     st.write("You entered: ")
     st.write(subject)
     st.write("")
-    retrieved_docs = retriever.invoke(subject)
+    #retrieved_docs = retriever.invoke(subject)
+    #size = len(retrieved_docs)
+    #st.write("Size of retrieved docs: ")
+    #st.write(size)
+    #st.write(retrieved_docs[0])
     response = chain.invoke(subject)
     st.write("")
     st.write("A POEM")
