@@ -42,9 +42,9 @@ def llm_loader():
         repo_id = "HuggingFaceH4/zephyr-7b-alpha",
         #repo_id= "HuggingFaceTB/SmolLM-135M",
         huggingfacehub_api_token = hf_inference_api_key,
-        temperature = 0.7, do_sample = True, repetition_penalty = 1.3,
+        temperature = 0.8, do_sample = True, repetition_penalty = 1.3,
         model_kwargs={
-            "num_beams": 5,
+            "num_beams": 8,
             "num_beam_groups": 4,
             "no_repeat_ngram_size": 3,
             "exponential_decay_length_penalty": (8, 0.5)
@@ -92,7 +92,7 @@ def vector_db(_texts,_embeddings):
     #db = Chroma.from_texts(json_serializable(_texts), _embeddings)
     db = Chroma.from_documents(_texts, _embeddings)
     retriever = db.as_retriever(
-        search_type="mmr", k=10, return_source_documents=True
+        search_type="mmr", k=10, return_source_documents=False
         ) 
     # mmr = maximal marginal relevance for similarity + diversity
     return retriever
